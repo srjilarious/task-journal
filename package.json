@@ -1,0 +1,60 @@
+{
+  "name": "code-wiki",
+  "displayName": "code-wiki",
+  "description": "A vim-wiki like extension for VSCode.  diary and todo lists.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Code Wiki",
+      "properties": {
+        "code-wiki.data_directory": {
+          "type": "string",
+          "default": "",
+          "description": "Directory where new wiki entries will be created"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "code-wiki.helloWorld",
+        "title": "Code Wiki: Hello World"
+      },
+      {
+        "command": "code-wiki.new_entry",
+        "title": "Code Wiki: New Entry"
+      },
+      {
+        "command": "code-wiki.toggle_task",
+        "title": "Code Wiki: Toggle Task"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.96.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0",
+    "typescript": "^5.7.2",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1"
+  }
+}
