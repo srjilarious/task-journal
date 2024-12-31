@@ -52,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(newEntryCommand);
     
-    let taskStates = ['- [ ]', '- [.]', '- [/]', '- [x]'];
+    //let taskStates = ['- [ ]', '- [.]', '- [/]', '- [x]'];
 
     const toggleTaskCommand = vscode.commands.registerCommand('code-wiki.toggle_task', () => {
         const editor = vscode.window.activeTextEditor;
@@ -60,16 +60,33 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
+        const config = vscode.workspace.getConfiguration('code-wiki');
+        const configuredPattern = config.get<string>('task_pattern');
+        const patternParts = configuredPattern?.split("$") ?? "- [$]";
+        const patternStart = patternParts[0];
+        const patternEnd = patternParts[1];
+
+        const taskStates = config.get<string[]>('progress_states', [" ", "/", "*"]);
+
         const line = editor.document.lineAt(editor.selection.active.line);
         const currentText = line.text.trim();
         let newText = '';
 
-        if (currentText.startsWith('- [')) {
-            const currentState = taskStates.findIndex(state => currentText.startsWith(state));
+        if (currentText.startsWith(patternStart)) {
+            const afterStart = currentText.substring(patternStart.length);
+
+            const taskTextStart = afterStart.indexOf(patternEnd);
+            // If we don't see our end pattern, bail.
+            if(taskTextStart < 0) {
+                return;
+            }
+
+            const restText = afterStart.substring(taskTextStart+1);
+            const currentState = taskStates.findIndex(state => afterStart.startsWith(state));
             const nextState = (currentState + 1) % taskStates.length;
-            newText = currentText.replace(taskStates[currentState], taskStates[nextState]);
+            newText = `${patternStart}${taskStates[nextState]}${patternEnd}${restText}`;
         } else {
-            newText = `- [ ] ${currentText}`;
+            newText = `${patternStart}${taskStates[0]}${patternEnd}${currentText}`;
         }
 
         editor.edit(editBuilder => {

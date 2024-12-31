@@ -20,7 +20,20 @@
           "type": "string",
           "default": "",
           "description": "Directory where new wiki entries will be created"
-        }
+        },
+        "code-wiki.task_pattern": {
+          "type": "string",
+          "default": "- [$]",
+          "description": "Pattern for beginning of task lines, `$` is where task/progress states go."
+        },
+        "code-wiki.progress_states": {
+            "type": "array",
+            "default": [" ", "◔", "◑", "◕", "✓"],
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of in-progress states for toggling in markdown files"
+          }
       }
     },
     "commands": [
