@@ -23,7 +23,7 @@
         },
         "code-wiki.task_pattern": {
           "type": "string",
-          "default": "- [$]",
+          "default": "- [$] ",
           "description": "Pattern for beginning of task lines, `$` is where task/progress states go."
         },
         "code-wiki.progress_states": {
@@ -46,8 +46,38 @@
         "title": "Code Wiki: New Entry"
       },
       {
+        "command": "code-wiki.decrease_task",
+        "title": "Code Wiki: Decrease Task Progress"
+      },
+      {
+        "command": "code-wiki.increase_task",
+        "title": "Code Wiki: Increase Task Progress"
+      },
+      {
         "command": "code-wiki.toggle_task",
         "title": "Code Wiki: Toggle Task"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "code-wiki.new_entry",
+        "key": "meta+w,meta+w",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "code-wiki.decrease_task",
+        "key": "ctrl+meta+[",
+        "when": "editorTextFocus && editorLangId == 'markdown'"
+      },
+      {
+        "command": "code-wiki.increase_task",
+        "key": "ctrl+meta+]",
+        "when": "editorTextFocus && editorLangId == 'markdown'"
+      },
+      {
+        "command": "code-wiki.toggle_task",
+        "key": "ctrl+meta+enter",
+        "when": "editorTextFocus && editorLangId == 'markdown'"
       }
     ]
   },

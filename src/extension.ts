@@ -5,6 +5,63 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
+class TaskLineResult {
+    valid: boolean = false;
+    patternStart: string = "";
+    patternEnd: string = "";
+    taskStates: string[] = [];
+    taskText: string = "";
+    currentState: number = 0;
+}
+
+// Gets the config values needed, determines if the line is a task line, and info like the current state.
+function processLine(context: vscode.ExtensionContext, line: string): TaskLineResult {
+    const config = vscode.workspace.getConfiguration('code-wiki');
+    const configuredPattern = config.get<string>('task_pattern');
+    const patternParts = configuredPattern?.split("$") ?? "- [$]";
+    const patternStart = patternParts[0];
+    const patternEnd = patternParts[1];
+
+    const taskStates = config.get<string[]>('progress_states', [" ", "/", "*"]);
+    if (line.startsWith(patternStart)) {
+        
+        const afterStart = line.substring(patternStart.length);
+        const taskTextStart = afterStart.indexOf(patternEnd);
+
+        // If we don't see our end pattern, bail.
+        if(taskTextStart < 0) {
+            return {
+                valid: false,
+                patternStart: patternStart,
+                patternEnd: patternEnd,
+                taskStates: taskStates,
+                taskText: "",
+                currentState: -1,
+            };
+        }
+
+        const restText = afterStart.substring(taskTextStart+patternEnd.length);
+        const currentState = taskStates.findIndex(state => afterStart.startsWith(state));
+        return {
+            valid: true,
+            patternStart: patternStart,
+            patternEnd: patternEnd,
+            taskStates: taskStates,
+            taskText: restText,
+            currentState: currentState,
+        };
+    }
+
+    return {
+        valid: false,
+        patternStart: patternStart,
+        patternEnd: patternEnd,
+        taskStates: taskStates,
+        taskText: "",
+        currentState: -1,
+    };
+}
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -54,39 +111,87 @@ export function activate(context: vscode.ExtensionContext) {
     
     //let taskStates = ['- [ ]', '- [.]', '- [/]', '- [x]'];
 
+    const decreaseTaskCommand = vscode.commands.registerCommand('code-wiki.decrease_task', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+        
+        const line = editor.document.lineAt(editor.selection.active.line);
+        const currentText = line.text.trim();
+        const res = processLine(context, currentText);
+
+        let newText = '';
+
+        // Check if the line is already a valid task line
+        if (res.valid) {
+            let nextState = res.currentState - 1;
+            if(nextState < 0) {
+                nextState = res.taskStates.length - 1;
+            }
+            
+            newText = `${res.patternStart}${res.taskStates[nextState]}${res.patternEnd}${res.taskText}`;
+        } else {
+            newText = `${res.patternStart}${res.taskStates[0]}${res.patternEnd}${currentText}`;
+        }
+
+        editor.edit(editBuilder => {
+            editBuilder.replace(line.range, newText);
+        });
+    });
+
+    context.subscriptions.push(decreaseTaskCommand);
+
+    const increaseTaskCommand = vscode.commands.registerCommand('code-wiki.increase_task', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+        
+        const line = editor.document.lineAt(editor.selection.active.line);
+        const currentText = line.text.trim();
+        const res = processLine(context, currentText);
+
+        let newText = '';
+
+        // Check if the line is already a valid task line
+        if (res.valid) {
+            const nextState = (res.currentState + 1) % res.taskStates.length;
+            newText = `${res.patternStart}${res.taskStates[nextState]}${res.patternEnd}${res.taskText}`;
+        } else {
+            newText = `${res.patternStart}${res.taskStates[0]}${res.patternEnd}${currentText}`;
+        }
+
+        editor.edit(editBuilder => {
+            editBuilder.replace(line.range, newText);
+        });
+    });
+
+    context.subscriptions.push(increaseTaskCommand);
+
     const toggleTaskCommand = vscode.commands.registerCommand('code-wiki.toggle_task', () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             return;
         }
-
-        const config = vscode.workspace.getConfiguration('code-wiki');
-        const configuredPattern = config.get<string>('task_pattern');
-        const patternParts = configuredPattern?.split("$") ?? "- [$]";
-        const patternStart = patternParts[0];
-        const patternEnd = patternParts[1];
-
-        const taskStates = config.get<string[]>('progress_states', [" ", "/", "*"]);
-
+        
         const line = editor.document.lineAt(editor.selection.active.line);
         const currentText = line.text.trim();
+        const res = processLine(context, currentText);
+
         let newText = '';
 
-        if (currentText.startsWith(patternStart)) {
-            const afterStart = currentText.substring(patternStart.length);
-
-            const taskTextStart = afterStart.indexOf(patternEnd);
-            // If we don't see our end pattern, bail.
-            if(taskTextStart < 0) {
-                return;
+        // Check if the line is already a valid task line
+        if (res.valid) {
+            let nextState = res.taskStates.length-1;
+            // If already complete, toggle it back to the starting state.
+            if(res.currentState === res.taskStates.length-1) {
+                nextState = 0;
             }
 
-            const restText = afterStart.substring(taskTextStart+1);
-            const currentState = taskStates.findIndex(state => afterStart.startsWith(state));
-            const nextState = (currentState + 1) % taskStates.length;
-            newText = `${patternStart}${taskStates[nextState]}${patternEnd}${restText}`;
+            newText = `${res.patternStart}${res.taskStates[nextState]}${res.patternEnd}${res.taskText}`;
         } else {
-            newText = `${patternStart}${taskStates[0]}${patternEnd}${currentText}`;
+            newText = `${res.patternStart}${res.taskStates[0]}${res.patternEnd}${currentText}`;
         }
 
         editor.edit(editBuilder => {
