@@ -62,6 +62,96 @@ function processLine(context: vscode.ExtensionContext, line: string): TaskLineRe
     };
 }
 
+function getDiaryFiles(dataDirectory: string): string[] {
+    if (!fs.existsSync(dataDirectory)) {
+        return [];
+    }
+
+    return fs
+        .readdirSync(dataDirectory)
+        .filter(file => file.endsWith('.md')) // Only include .md files
+        .sort(); // Sort alphabetically (default)
+}
+
+async function openFile(editor: vscode.TextEditor, filePath: string) {
+    const doc = await vscode.workspace.openTextDocument(filePath);
+    vscode.window.showTextDocument(doc);
+}
+
+function navigateDiaryEntry(direction: 'next' | 'previous') {
+    const config = vscode.workspace.getConfiguration('code-wiki');
+    const dataDirectory = config.get<string>('data_directory') || path.join(require('os').homedir(), '.code-wiki');
+
+    const files = getDiaryFiles(dataDirectory);
+
+    if (files.length === 0) {
+        vscode.window.showErrorMessage('No diary entries found.');
+        return;
+    }
+
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showErrorMessage('No active editor.');
+        return;
+    }
+
+    const currentFile = editor.document.fileName;
+    const currentIndex = files.findIndex(file => path.join(dataDirectory, file) === currentFile);
+
+    if (currentIndex === -1) {
+        vscode.window.showErrorMessage('Current file is not a diary entry.');
+        return;
+    }
+
+    let targetIndex = currentIndex;
+    if (direction === 'next') {
+        targetIndex = (currentIndex + 1) % files.length; // Wrap around to the first file
+    } else if (direction === 'previous') {
+        targetIndex = (currentIndex - 1 + files.length) % files.length; // Wrap around to the last file
+    }
+
+    const targetFile = path.join(dataDirectory, files[targetIndex]);
+    openFile(editor, targetFile);
+}
+
+function prepDiaryDirectory(): string {
+    // Get the configured directory or default to ~/.code-wiki
+    const config = vscode.workspace.getConfiguration('code-wiki');
+    const configuredDirectory = config.get<string>('data_directory');
+    const defaultDirectory = path.join(os.homedir(), '.code-wiki');
+    const dataDirectory = configuredDirectory || defaultDirectory;
+
+    // Ensure the directory exists
+    if (!fs.existsSync(dataDirectory)) {
+        fs.mkdirSync(dataDirectory, { recursive: true });
+    }
+
+    return dataDirectory;
+}
+
+async function openDiaryEntry(dataDirectory: string, date: string) {
+    const fileName = `${date}.md`;
+    const filePath = path.join(dataDirectory, fileName);
+
+    // Create the file if it doesn't exist and open it in the editor
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, `# [${date}] Entry\n\n`, { encoding: 'utf8' });
+    }
+
+    const doc = await vscode.workspace.openTextDocument(filePath);
+    vscode.window.showTextDocument(doc);
+}
+
+function toLocalISOString(date: Date): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1); // Months are 0-based
+    const day = pad(date.getDate());
+
+    return `${year}-${month}-${day}`;
+}
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -81,33 +171,25 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(disposable);
 
-    const newEntryCommand = vscode.commands.registerCommand('code-wiki.new_entry', async () => {
-        // Get the configured directory or default to ~/.code-wiki
-        const config = vscode.workspace.getConfiguration('code-wiki');
-        const configuredDirectory = config.get<string>('data_directory');
-        const defaultDirectory = path.join(os.homedir(), '.code-wiki');
-        const dataDirectory = configuredDirectory || defaultDirectory;
-
-        // Ensure the directory exists
-        if (!fs.existsSync(dataDirectory)) {
-            fs.mkdirSync(dataDirectory, { recursive: true });
-        }
+    const todaysEntryCommand = vscode.commands.registerCommand('code-wiki.todays_entry', async () => {
+        const data_directory = prepDiaryDirectory();
 
         // Generate the file name based on the current date
-        const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-        const fileName = `${date}.md`;
-        const filePath = path.join(dataDirectory, fileName);
-
-        // Create the file if it doesn't exist and open it in the editor
-        if (!fs.existsSync(filePath)) {
-            fs.writeFileSync(filePath, `# [${date}] Entry\n\n`, { encoding: 'utf8' });
-        }
-
-        const doc = await vscode.workspace.openTextDocument(filePath);
-        vscode.window.showTextDocument(doc);
+        const date = toLocalISOString(new Date()); // YYYY-MM-DD format
+        await openDiaryEntry(data_directory, date);
     });
 
-    context.subscriptions.push(newEntryCommand);
+    const tomorrowsEntryCommand = vscode.commands.registerCommand('code-wiki.tomorrows_entry', async () => {
+        const data_directory = prepDiaryDirectory();
+
+        // Generate the file name based on the current date
+        const date = new Date()
+        date.setDate(date.getDate() + 1)
+        const dateStr = toLocalISOString(date); // YYYY-MM-DD format
+        await openDiaryEntry(data_directory, dateStr);
+    });
+
+    context.subscriptions.push(todaysEntryCommand, tomorrowsEntryCommand);
     
     //let taskStates = ['- [ ]', '- [.]', '- [/]', '- [x]'];
 
@@ -200,6 +282,16 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(toggleTaskCommand);
+
+    const nextEntryCommand = vscode.commands.registerCommand('code-wiki.next_entry', () => {
+        navigateDiaryEntry('next');
+    });
+
+    const previousEntryCommand = vscode.commands.registerCommand('code-wiki.previous_entry', () => {
+        navigateDiaryEntry('previous');
+    });
+
+    context.subscriptions.push(nextEntryCommand, previousEntryCommand);
 }
 
 // This method is called when your extension is deactivated

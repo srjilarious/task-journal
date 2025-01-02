@@ -42,8 +42,20 @@
         "title": "Code Wiki: Hello World"
       },
       {
-        "command": "code-wiki.new_entry",
-        "title": "Code Wiki: New Entry"
+        "command": "code-wiki.todays_entry",
+        "title": "Code Wiki: Entry for Today"
+      },
+      {
+        "command": "code-wiki.tomorrows_entry",
+        "title": "Code Wiki: Entry for Tomorrow"
+      },
+      {
+        "command": "code-wiki.previous_entry",
+        "title": "Code Wiki: Previous Entry"
+      },
+      {
+        "command": "code-wiki.next_entry",
+        "title": "Code Wiki: Next Entry"
       },
       {
         "command": "code-wiki.decrease_task",
@@ -60,8 +72,23 @@
     ],
     "keybindings": [
       {
-        "command": "code-wiki.new_entry",
-        "key": "meta+w,meta+w",
+        "command": "code-wiki.todays_entry",
+        "key": "ctrl+meta+t",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "code-wiki.tomorrows_entry",
+        "key": "ctrl+meta+m",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "code-wiki.previous_entry",
+        "key": "ctrl+meta+p",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "code-wiki.next_entry",
+        "key": "ctrl+meta+n",
         "when": "editorTextFocus"
       },
       {
