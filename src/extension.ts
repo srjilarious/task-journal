@@ -12,6 +12,14 @@ class TaskLineResult {
     taskStates: string[] = [];
     taskText: string = "";
     currentState: number = 0;
+    indentation: string = "";
+}
+
+function getIndentation(input: string) {
+    const match = input.match(/^\s+/);
+    const ws = match ? match[0] : "";
+    const rest = input.substring(ws.length);
+    return [ws, rest];
 }
 
 // Gets the config values needed, determines if the line is a task line, and info like the current state.
@@ -23,9 +31,10 @@ function processLine(context: vscode.ExtensionContext, line: string): TaskLineRe
     const patternEnd = patternParts[1];
 
     const taskStates = config.get<string[]>('progress_states', [" ", "/", "*"]);
-    if (line.startsWith(patternStart)) {
+    const [ws, rest] = getIndentation(line);
+    if (rest.startsWith(patternStart)) {
         
-        const afterStart = line.substring(patternStart.length);
+        const afterStart = rest.substring(patternStart.length);
         const taskTextStart = afterStart.indexOf(patternEnd);
 
         // If we don't see our end pattern, bail.
@@ -37,6 +46,7 @@ function processLine(context: vscode.ExtensionContext, line: string): TaskLineRe
                 taskStates: taskStates,
                 taskText: "",
                 currentState: -1,
+                indentation: ws,
             };
         }
 
@@ -49,6 +59,7 @@ function processLine(context: vscode.ExtensionContext, line: string): TaskLineRe
             taskStates: taskStates,
             taskText: restText,
             currentState: currentState,
+            indentation: ws,
         };
     }
 
@@ -59,6 +70,7 @@ function processLine(context: vscode.ExtensionContext, line: string): TaskLineRe
         taskStates: taskStates,
         taskText: "",
         currentState: -1,
+        indentation: ws,
     };
 }
 
@@ -200,8 +212,8 @@ export function activate(context: vscode.ExtensionContext) {
         }
         
         const line = editor.document.lineAt(editor.selection.active.line);
-        const currentText = line.text.trim();
-        const res = processLine(context, currentText);
+        // const currentText = line.text.trim();
+        const res = processLine(context, line.text);
 
         let newText = '';
 
@@ -212,9 +224,9 @@ export function activate(context: vscode.ExtensionContext) {
                 nextState = res.taskStates.length - 1;
             }
             
-            newText = `${res.patternStart}${res.taskStates[nextState]}${res.patternEnd}${res.taskText}`;
+            newText = `${res.indentation}${res.patternStart}${res.taskStates[nextState]}${res.patternEnd}${res.taskText}`;
         } else {
-            newText = `${res.patternStart}${res.taskStates[0]}${res.patternEnd}${currentText}`;
+            newText = `${res.indentation}${res.patternStart}${res.taskStates[0]}${res.patternEnd}${res.taskText}`;
         }
 
         editor.edit(editBuilder => {
@@ -231,17 +243,17 @@ export function activate(context: vscode.ExtensionContext) {
         }
         
         const line = editor.document.lineAt(editor.selection.active.line);
-        const currentText = line.text.trim();
-        const res = processLine(context, currentText);
+        // const currentText = line.text.trim();
+        const res = processLine(context, line.text);
 
         let newText = '';
 
         // Check if the line is already a valid task line
         if (res.valid) {
             const nextState = (res.currentState + 1) % res.taskStates.length;
-            newText = `${res.patternStart}${res.taskStates[nextState]}${res.patternEnd}${res.taskText}`;
+            newText = `${res.indentation}${res.patternStart}${res.taskStates[nextState]}${res.patternEnd}${res.taskText}`;
         } else {
-            newText = `${res.patternStart}${res.taskStates[0]}${res.patternEnd}${currentText}`;
+            newText = `${res.indentation}${res.patternStart}${res.taskStates[0]}${res.patternEnd}${res.taskText}`;
         }
 
         editor.edit(editBuilder => {
@@ -258,8 +270,8 @@ export function activate(context: vscode.ExtensionContext) {
         }
         
         const line = editor.document.lineAt(editor.selection.active.line);
-        const currentText = line.text.trim();
-        const res = processLine(context, currentText);
+        // const currentText = line.text.trim();
+        const res = processLine(context, line.text);
 
         let newText = '';
 
@@ -271,9 +283,9 @@ export function activate(context: vscode.ExtensionContext) {
                 nextState = 0;
             }
 
-            newText = `${res.patternStart}${res.taskStates[nextState]}${res.patternEnd}${res.taskText}`;
+            newText = `${res.indentation}${res.patternStart}${res.taskStates[nextState]}${res.patternEnd}${res.taskText}`;
         } else {
-            newText = `${res.patternStart}${res.taskStates[0]}${res.patternEnd}${currentText}`;
+            newText = `${res.indentation}${res.patternStart}${res.taskStates[0]}${res.patternEnd}${res.taskText}`;
         }
 
         editor.edit(editBuilder => {
