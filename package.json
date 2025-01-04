@@ -1,8 +1,10 @@
 {
-  "name": "code-wiki",
-  "displayName": "code-wiki",
-  "description": "A vim-wiki like extension for VSCode.  diary and todo lists.",
+  "name": "task-journal",
+  "displayName": "task-journal",
+  "description": "A todo list and journaling extension for VSCode based on the best parts of vim-wiki.",
   "version": "0.0.1",
+  "repository": "https://github.com/srjilarious/task-journal",
+  "publisher": "WalkNSqualk",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -14,19 +16,19 @@
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Code Wiki",
+      "title": "Task Journal",
       "properties": {
-        "code-wiki.data_directory": {
+        "task-journal.data_directory": {
           "type": "string",
           "default": "",
-          "description": "Directory where new wiki entries will be created"
+          "description": "Directory where new journal entries will be created"
         },
-        "code-wiki.task_pattern": {
+        "task-journal.task_pattern": {
           "type": "string",
           "default": "- [$] ",
           "description": "Pattern for beginning of task lines, `$` is where task/progress states go."
         },
-        "code-wiki.progress_states": {
+        "task-journal.progress_states": {
             "type": "array",
             "default": [" ", "◔", "◑", "◕", "✓"],
             "items": {
@@ -38,71 +40,67 @@
     },
     "commands": [
       {
-        "command": "code-wiki.helloWorld",
-        "title": "Code Wiki: Hello World"
+        "command": "task-journal.todays_entry",
+        "title": "Task Journal: Journal Entry for Today"
       },
       {
-        "command": "code-wiki.todays_entry",
-        "title": "Code Wiki: Entry for Today"
+        "command": "task-journal.tomorrows_entry",
+        "title": "Task Journal: Journal Entry for Tomorrow"
       },
       {
-        "command": "code-wiki.tomorrows_entry",
-        "title": "Code Wiki: Entry for Tomorrow"
+        "command": "task-journal.previous_entry",
+        "title": "Task Journal: Previous Journal Entry"
       },
       {
-        "command": "code-wiki.previous_entry",
-        "title": "Code Wiki: Previous Entry"
+        "command": "task-journal.next_entry",
+        "title": "Task Journal: Next Journal Entry"
       },
       {
-        "command": "code-wiki.next_entry",
-        "title": "Code Wiki: Next Entry"
+        "command": "task-journal.decrease_task",
+        "title": "Task Journal: Decrease Task Progress"
       },
       {
-        "command": "code-wiki.decrease_task",
-        "title": "Code Wiki: Decrease Task Progress"
+        "command": "task-journal.increase_task",
+        "title": "Task Journal: Increase Task Progress"
       },
       {
-        "command": "code-wiki.increase_task",
-        "title": "Code Wiki: Increase Task Progress"
-      },
-      {
-        "command": "code-wiki.toggle_task",
-        "title": "Code Wiki: Toggle Task"
+        "command": "task-journal.toggle_task",
+        "title": "Task Journal: Toggle Task"
       }
     ],
     "keybindings": [
       {
-        "command": "code-wiki.todays_entry",
+        "command": "task-journal.todays_entry",
         "key": "ctrl+meta+t",
         "when": "editorTextFocus"
       },
       {
-        "command": "code-wiki.tomorrows_entry",
+        "command": "task-journal.tomorrows_entry",
         "key": "ctrl+meta+m",
         "when": "editorTextFocus"
       },
       {
-        "command": "code-wiki.previous_entry",
+        "command": "task-journal.previous_entry",
         "key": "ctrl+meta+p",
         "when": "editorTextFocus"
       },
       {
-        "command": "code-wiki.next_entry",
+        "command": "task-journal.next_entry",
         "key": "ctrl+meta+n",
         "when": "editorTextFocus"
       },
       {
-        "command": "code-wiki.decrease_task",
+        "command": "task-journal.decrease_task",
         "key": "ctrl+meta+[",
         "when": "editorTextFocus && editorLangId == 'markdown'"
       },
       {
-        "command": "code-wiki.increase_task",
+        "command": "task-journal.increase_task",
         "key": "ctrl+meta+]",
         "when": "editorTextFocus && editorLangId == 'markdown'"
       },
       {
-        "command": "code-wiki.toggle_task",
+        "command": "task-journal.toggle_task",
         "key": "ctrl+meta+enter",
         "when": "editorTextFocus && editorLangId == 'markdown'"
       }

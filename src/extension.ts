@@ -24,7 +24,7 @@ function getIndentation(input: string) {
 
 // Gets the config values needed, determines if the line is a task line, and info like the current state.
 function processLine(context: vscode.ExtensionContext, line: string): TaskLineResult {
-    const config = vscode.workspace.getConfiguration('code-wiki');
+    const config = vscode.workspace.getConfiguration('task-journal');
     const configuredPattern = config.get<string>('task_pattern');
     const patternParts = configuredPattern?.split("$") ?? "- [$]";
     const patternStart = patternParts[0];
@@ -44,7 +44,7 @@ function processLine(context: vscode.ExtensionContext, line: string): TaskLineRe
                 patternStart: patternStart,
                 patternEnd: patternEnd,
                 taskStates: taskStates,
-                taskText: "",
+                taskText: rest,
                 currentState: -1,
                 indentation: ws,
             };
@@ -68,7 +68,7 @@ function processLine(context: vscode.ExtensionContext, line: string): TaskLineRe
         patternStart: patternStart,
         patternEnd: patternEnd,
         taskStates: taskStates,
-        taskText: "",
+        taskText: rest,
         currentState: -1,
         indentation: ws,
     };
@@ -91,8 +91,8 @@ async function openFile(editor: vscode.TextEditor, filePath: string) {
 }
 
 function navigateDiaryEntry(direction: 'next' | 'previous') {
-    const config = vscode.workspace.getConfiguration('code-wiki');
-    const dataDirectory = config.get<string>('data_directory') || path.join(require('os').homedir(), '.code-wiki');
+    const config = vscode.workspace.getConfiguration('task-journal');
+    const dataDirectory = config.get<string>('data_directory') || path.join(require('os').homedir(), '.task-journal');
 
     const files = getDiaryFiles(dataDirectory);
 
@@ -127,10 +127,10 @@ function navigateDiaryEntry(direction: 'next' | 'previous') {
 }
 
 function prepDiaryDirectory(): string {
-    // Get the configured directory or default to ~/.code-wiki
-    const config = vscode.workspace.getConfiguration('code-wiki');
+    // Get the configured directory or default to ~/.task-journal
+    const config = vscode.workspace.getConfiguration('task-journal');
     const configuredDirectory = config.get<string>('data_directory');
-    const defaultDirectory = path.join(os.homedir(), '.code-wiki');
+    const defaultDirectory = path.join(os.homedir(), '.task-journal');
     const dataDirectory = configuredDirectory || defaultDirectory;
 
     // Ensure the directory exists
@@ -170,20 +170,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "code-wiki" is now active!');
+    console.log('"task-journal" is now active!');
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with registerCommand
-    // The commandId parameter must match the command field in package.json
-    const disposable = vscode.commands.registerCommand('code-wiki.helloWorld', () => {
-        // The code you place here will be executed every time your command is executed
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hallo Welt from code-wiki!');
-    });
-
-    context.subscriptions.push(disposable);
-
-    const todaysEntryCommand = vscode.commands.registerCommand('code-wiki.todays_entry', async () => {
+    const todaysEntryCommand = vscode.commands.registerCommand('task-journal.todays_entry', async () => {
         const data_directory = prepDiaryDirectory();
 
         // Generate the file name based on the current date
@@ -191,7 +180,7 @@ export function activate(context: vscode.ExtensionContext) {
         await openDiaryEntry(data_directory, date);
     });
 
-    const tomorrowsEntryCommand = vscode.commands.registerCommand('code-wiki.tomorrows_entry', async () => {
+    const tomorrowsEntryCommand = vscode.commands.registerCommand('task-journal.tomorrows_entry', async () => {
         const data_directory = prepDiaryDirectory();
 
         // Generate the file name based on the current date
@@ -203,9 +192,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(todaysEntryCommand, tomorrowsEntryCommand);
     
-    //let taskStates = ['- [ ]', '- [.]', '- [/]', '- [x]'];
-
-    const decreaseTaskCommand = vscode.commands.registerCommand('code-wiki.decrease_task', () => {
+    const decreaseTaskCommand = vscode.commands.registerCommand('task-journal.decrease_task', () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             return;
@@ -236,7 +223,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(decreaseTaskCommand);
 
-    const increaseTaskCommand = vscode.commands.registerCommand('code-wiki.increase_task', () => {
+    const increaseTaskCommand = vscode.commands.registerCommand('task-journal.increase_task', () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             return;
@@ -263,7 +250,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(increaseTaskCommand);
 
-    const toggleTaskCommand = vscode.commands.registerCommand('code-wiki.toggle_task', () => {
+    const toggleTaskCommand = vscode.commands.registerCommand('task-journal.toggle_task', () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             return;
@@ -295,11 +282,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(toggleTaskCommand);
 
-    const nextEntryCommand = vscode.commands.registerCommand('code-wiki.next_entry', () => {
+    const nextEntryCommand = vscode.commands.registerCommand('task-journal.next_entry', () => {
         navigateDiaryEntry('next');
     });
 
-    const previousEntryCommand = vscode.commands.registerCommand('code-wiki.previous_entry', () => {
+    const previousEntryCommand = vscode.commands.registerCommand('task-journal.previous_entry', () => {
         navigateDiaryEntry('previous');
     });
 
