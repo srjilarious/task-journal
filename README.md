@@ -46,6 +46,10 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.2.1
+
+- Added icon and CHANGELOG.md contents.
+
 ### 0.2.0
 
 - Added in entry template configuration option and changed default to `# $date\n`
