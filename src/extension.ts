@@ -141,13 +141,32 @@ function prepDiaryDirectory(): string {
     return dataDirectory;
 }
 
-async function openDiaryEntry(dataDirectory: string, date: string) {
-    const fileName = `${date}.md`;
+function headerContents(date: Date): string {
+    const config = vscode.workspace.getConfiguration('task-journal');
+    let entryTemplate = config.get<string>('entry_template') || "# $date\n";
+    
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1); // Months are 0-based
+    const day = pad(date.getDate());
+
+    entryTemplate = entryTemplate.replaceAll("$dd", day);
+    entryTemplate = entryTemplate.replaceAll("$mm", month);
+    entryTemplate = entryTemplate.replaceAll("$yyyy", String(year));
+    entryTemplate = entryTemplate.replaceAll("$date", `${year}/${month}/${day}`);
+    return entryTemplate;
+}
+
+async function openDiaryEntry(dataDirectory: string, date: Date) {
+    const dateStr = toLocalISOString(date);
+    const fileName = `${dateStr}.md`;
     const filePath = path.join(dataDirectory, fileName);
 
     // Create the file if it doesn't exist and open it in the editor
     if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, `# [${date}] Entry\n\n`, { encoding: 'utf8' });
+
+        fs.writeFileSync(filePath, headerContents(date), { encoding: 'utf8' });
     }
 
     const doc = await vscode.workspace.openTextDocument(filePath);
@@ -175,19 +194,18 @@ export function activate(context: vscode.ExtensionContext) {
     const todaysEntryCommand = vscode.commands.registerCommand('task-journal.todays_entry', async () => {
         const data_directory = prepDiaryDirectory();
 
-        // Generate the file name based on the current date
-        const date = toLocalISOString(new Date()); // YYYY-MM-DD format
+        // Generate the file based on the current date
+        const date = new Date();
         await openDiaryEntry(data_directory, date);
     });
 
     const tomorrowsEntryCommand = vscode.commands.registerCommand('task-journal.tomorrows_entry', async () => {
         const data_directory = prepDiaryDirectory();
 
-        // Generate the file name based on the current date
+        // Generate the file  based on tomorrow's date
         const date = new Date()
         date.setDate(date.getDate() + 1)
-        const dateStr = toLocalISOString(date); // YYYY-MM-DD format
-        await openDiaryEntry(data_directory, dateStr);
+        await openDiaryEntry(data_directory, date);
     });
 
     context.subscriptions.push(todaysEntryCommand, tomorrowsEntryCommand);
