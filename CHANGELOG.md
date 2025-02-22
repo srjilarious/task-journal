@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.3.0
+
+- Fixed a bug where next/previous navigation didn't work on Windows if the data directory was specified with an upper case drive letter.
+
 ## 0.2.1
 
 - Updated CHANELOG.md file from default extension template version.

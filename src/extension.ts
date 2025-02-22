@@ -107,11 +107,16 @@ function navigateDiaryEntry(direction: 'next' | 'previous') {
         return;
     }
 
-    const currentFile = editor.document.fileName;
-    const currentIndex = files.findIndex(file => path.join(dataDirectory, file) === currentFile);
+    const currentFile = path.normalize(editor.document.fileName);
+    if(!path.dirname(currentFile).toLowerCase().includes(dataDirectory.toLowerCase())) {
+        vscode.window.showErrorMessage('Current file is not a file in the data directory.');
+        return;
+
+    }
+    const currentIndex = files.findIndex(file => path.join(dataDirectory, file).toLowerCase() === currentFile.toLowerCase());
 
     if (currentIndex === -1) {
-        vscode.window.showErrorMessage('Current file is not a diary entry.');
+        vscode.window.showErrorMessage('Current find the current file under the data directory.');
         return;
     }
 
