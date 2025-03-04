@@ -22,7 +22,7 @@
         "task-journal.data_directory": {
           "type": "string",
           "default": "",
-          "description": "Directory where new journal entries will be created"
+          "description": "Directory where new journal entries will be created."
         },
         "task-journal.entry_template": {
           "type": "string",
@@ -40,7 +40,25 @@
             "items": {
               "type": "string"
             },
-            "description": "Array of in-progress states for toggling in markdown files"
+            "description": "Array of in-progress states for toggling in markdown files."
+        },
+        "task-journal.tag_pattern": {
+          "type": "string",
+          "default": "($) ",
+          "description": "Pattern for tag portion of task right after the task pattern, `$` is where tag list goes."
+        },
+        "task-journal.tag_separator": {
+          "type": "string",
+          "default": ",",
+          "description": "string that separates tags from one another."
+        },
+        "task-journal.tags": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "description": "A list of different tags that can be applied to a task line."
         }
       }
     },
@@ -64,6 +82,18 @@
       {
         "command": "task-journal.decrease_task",
         "title": "Task Journal: Decrease Task Progress"
+      },
+      {
+        "command": "task-journal.apply_tag",
+        "title": "Task Journal: Apply a test tag"
+      },
+      {
+        "command": "task-journal.next_tag",
+        "title": "Task Journal: Apply a test tag"
+      },
+      {
+        "command": "task-journal.previous_tag",
+        "title": "Task Journal: Apply a test tag"
       },
       {
         "command": "task-journal.increase_task",

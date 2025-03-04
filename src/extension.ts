@@ -15,6 +15,14 @@ class TaskLineResult {
     indentation: string = "";
 }
 
+class TagResult {
+    taskStateText: string = "";
+    taskText: string = "";
+    tagStart: string = "";
+    tagEnd: string = "";
+    indentation: string = "";
+}
+
 function getIndentation(input: string) {
     const match = input.match(/^\s+/);
     const ws = match ? match[0] : "";
@@ -22,10 +30,57 @@ function getIndentation(input: string) {
     return [ws, rest];
 }
 
+// Applies a tag to the current task line.
+function applyTag(context: vscode.ExtensionContext, line: string, tag: string) {
+    const config = vscode.workspace.getConfiguration('task-journal');
+    const configuredPattern = config.get<string>('task_pattern') ?? "- [$]"; 
+    const patternParts = configuredPattern.split("$");
+    const patternStart = patternParts[0];
+    const patternEnd = patternParts[1];
+
+    const [ws, rest] = getIndentation(line);
+    if (rest.startsWith(patternStart)) {
+        
+        const afterStart = rest.substring(patternStart.length);
+        const taskTextStart = afterStart.indexOf(patternEnd);
+
+        // If we don't see our end pattern, bail.
+        if(taskTextStart < 0) {
+            return;
+        }
+
+        const restText = afterStart.substring(taskTextStart+patternEnd.length);
+        
+        const configuredTagPattern = config.get<string>('tag_pattern') ?? "($)"; 
+        const configuredTagSep = config.get<string>('tag_separator') ?? ',';
+        const tagParts = configuredTagPattern.split("$");
+        const tagStart = tagParts[0];
+        const tagEnd = tagParts[1];
+
+        if(restText.startsWith(tagStart)) {
+            console.log("Found a tag section:", rest);
+            const actualTaskTextStart = restText.indexOf(tagEnd);
+            if(actualTaskTextStart < 0) {
+                console.log("Only found beginning of tag section");
+                return;
+            }
+
+            const actualTaskText = restText.substring(actualTaskTextStart);
+            const tagText = restText.substring(0, actualTaskTextStart);
+            const tagList = tagText.split(configuredTagSep);
+        }
+        else {
+            const patternEndIdx = rest.indexOf(patternEnd);
+            const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${tagStart}${tag}${tagEnd}${restText}`;
+            return taggedLine;
+        }
+    }
+}
+
 // Gets the config values needed, determines if the line is a task line, and info like the current state.
 function processLine(context: vscode.ExtensionContext, line: string): TaskLineResult {
     const config = vscode.workspace.getConfiguration('task-journal');
-    const configuredPattern = config.get<string>('task_pattern');
+    const configuredPattern = config.get<string>('task_pattern'); 
     const patternParts = configuredPattern?.split("$") ?? "- [$]";
     const patternStart = patternParts[0];
     const patternEnd = patternParts[1];
@@ -208,8 +263,8 @@ export function activate(context: vscode.ExtensionContext) {
         const data_directory = prepDiaryDirectory();
 
         // Generate the file  based on tomorrow's date
-        const date = new Date()
-        date.setDate(date.getDate() + 1)
+        const date = new Date();
+        date.setDate(date.getDate() + 1);
         await openDiaryEntry(data_directory, date);
     });
 
@@ -314,6 +369,33 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(nextEntryCommand, previousEntryCommand);
+    
+    // Tag handling
+    const applyTagCommand = vscode.commands.registerCommand('task-journal.apply_tag', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+        
+        const line = editor.document.lineAt(editor.selection.active.line);
+
+        const newText = applyTag(context, line.text, "MGMT");
+        if(newText) {
+            editor.edit(editBuilder => {
+                editBuilder.replace(line.range, newText);
+            });
+        }
+    });
+
+    const previousTagCommand = vscode.commands.registerCommand('task-journal.previous_tag', () => {
+        
+    });
+    
+    const nextTagCommand = vscode.commands.registerCommand('task-journal.next_tag', () => {
+        
+    });
+
+    context.subscriptions.push(applyTagCommand, nextTagCommand, previousTagCommand);
 }
 
 // This method is called when your extension is deactivated
