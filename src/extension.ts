@@ -38,6 +38,13 @@ function applyTag(context: vscode.ExtensionContext, line: string, tag: string) {
     const patternStart = patternParts[0];
     const patternEnd = patternParts[1];
 
+    const configuredTagPattern = config.get<string>('tag_pattern') ?? "($)"; 
+    const configuredTagSep = config.get<string>('tag_separator') ?? ',';
+    const tagParts = configuredTagPattern.split("$");
+    const tagStart = tagParts[0];
+    const tagEnd = tagParts[1];
+
+    // TODO: Clean up code to just use indices within one string.
     const [ws, rest] = getIndentation(line);
     if (rest.startsWith(patternStart)) {
         
@@ -51,11 +58,7 @@ function applyTag(context: vscode.ExtensionContext, line: string, tag: string) {
 
         const restText = afterStart.substring(taskTextStart+patternEnd.length);
         
-        const configuredTagPattern = config.get<string>('tag_pattern') ?? "($)"; 
-        const configuredTagSep = config.get<string>('tag_separator') ?? ',';
-        const tagParts = configuredTagPattern.split("$");
-        const tagStart = tagParts[0];
-        const tagEnd = tagParts[1];
+        
 
         if(restText.startsWith(tagStart)) {
             console.log("Found a tag section:", rest);
@@ -74,6 +77,11 @@ function applyTag(context: vscode.ExtensionContext, line: string, tag: string) {
             const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${tagStart}${tag}${tagEnd}${restText}`;
             return taggedLine;
         }
+    }
+    else {
+        // Create a task line with the tag applied.
+        const taggedLine = `${ws}${patternStart} ${patternEnd}${tagStart}${tag}${tagEnd}${rest}`;
+        return taggedLine;
     }
 }
 
