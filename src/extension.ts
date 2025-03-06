@@ -59,6 +59,7 @@ function applyTag(context: vscode.ExtensionContext, line: string, tag: string) {
         const restText = afterStart.substring(taskTextStart+patternEnd.length);
         
         
+        const patternEndIdx = rest.indexOf(patternEnd);
 
         if(restText.startsWith(tagStart)) {
             console.log("Found a tag section:", rest);
@@ -68,12 +69,20 @@ function applyTag(context: vscode.ExtensionContext, line: string, tag: string) {
                 return;
             }
 
-            const actualTaskText = restText.substring(actualTaskTextStart);
-            const tagText = restText.substring(0, actualTaskTextStart);
-            const tagList = tagText.split(configuredTagSep);
+            const actualTaskText = restText.substring(actualTaskTextStart+tagEnd.length);
+            const tagText = restText.substring(tagStart.length, actualTaskTextStart);
+            const tagList = tagText.split(configuredTagSep).map(tag => tag.trim());;
+            if(tagList.includes(tag)) {
+                console.log(`tag list already includes ${tag}`);
+            }
+            else {
+                tagList.push(tag)
+                const tagListStr = tagList.join(configuredTagSep);
+                const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${tagStart}${tagListStr}${tagEnd}${actualTaskText}`;
+                return taggedLine;
+            }
         }
         else {
-            const patternEndIdx = rest.indexOf(patternEnd);
             const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${tagStart}${tag}${tagEnd}${restText}`;
             return taggedLine;
         }
@@ -251,6 +260,34 @@ function toLocalISOString(date: Date): string {
     return `${year}-${month}-${day}`;
 }
 
+function applyTagNum(context: vscode.ExtensionContext, which: number): void {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        return;
+    }
+    
+    const line = editor.document.lineAt(editor.selection.active.line);
+
+    const config = vscode.workspace.getConfiguration('task-journal');
+    const configuredTags = config.get<string>('tags') ?? []; 
+    if(configuredTags.length == 0) {
+        vscode.window.showErrorMessage('No configured tags in task-journal.tags.');
+        return;
+    }
+
+    if(which < 0 || which > configuredTags.length-1) {
+        vscode.window.showErrorMessage(`task-journal.tags only length ${configuredTags.length}, trying to access ${which}`);
+        return;
+    }
+
+    const newText = applyTag(context, line.text, configuredTags[which]);
+    if(newText) {
+        editor.edit(editBuilder => {
+            editBuilder.replace(line.range, newText);
+        });
+    }
+}
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -395,6 +432,19 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    const applyTag0Command = vscode.commands.registerCommand('task-journal.apply_tag_0', () => {
+        applyTagNum(context, 0);
+    });
+    const applyTag1Command = vscode.commands.registerCommand('task-journal.apply_tag_1', () => {
+        applyTagNum(context, 1);
+    });
+    const applyTag2Command = vscode.commands.registerCommand('task-journal.apply_tag_2', () => {
+        applyTagNum(context, 2);
+    });
+    const applyTag3Command = vscode.commands.registerCommand('task-journal.apply_tag_3', () => {
+        applyTagNum(context, 3);
+    });
+
     const previousTagCommand = vscode.commands.registerCommand('task-journal.previous_tag', () => {
         
     });
@@ -403,7 +453,15 @@ export function activate(context: vscode.ExtensionContext) {
         
     });
 
-    context.subscriptions.push(applyTagCommand, nextTagCommand, previousTagCommand);
+    context.subscriptions.push(
+        applyTagCommand,
+        applyTag0Command,
+        applyTag1Command,
+        applyTag2Command,
+        applyTag3Command,
+        nextTagCommand, 
+        previousTagCommand,
+    );
 }
 
 // This method is called when your extension is deactivated
