@@ -315,7 +315,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(todaysEntryCommand, tomorrowsEntryCommand);
     
-    const decreaseTaskCommand = vscode.commands.registerCommand('task-journal.decrease_task', () => {
+    const decreaseTaskCommand = vscode.commands.registerCommand('task-journal.decrease_task', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             return;
@@ -339,14 +339,14 @@ export function activate(context: vscode.ExtensionContext) {
             newText = `${res.indentation}${res.patternStart}${res.taskStates[0]}${res.patternEnd}${res.taskText}`;
         }
 
-        editor.edit(editBuilder => {
+        await editor.edit(editBuilder => {
             editBuilder.replace(line.range, newText);
         });
     });
 
     context.subscriptions.push(decreaseTaskCommand);
 
-    const increaseTaskCommand = vscode.commands.registerCommand('task-journal.increase_task', () => {
+    const increaseTaskCommand = vscode.commands.registerCommand('task-journal.increase_task', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             return;
@@ -366,14 +366,14 @@ export function activate(context: vscode.ExtensionContext) {
             newText = `${res.indentation}${res.patternStart}${res.taskStates[0]}${res.patternEnd}${res.taskText}`;
         }
 
-        editor.edit(editBuilder => {
+        await editor.edit(editBuilder => {
             editBuilder.replace(line.range, newText);
         });
     });
 
     context.subscriptions.push(increaseTaskCommand);
 
-    const toggleTaskCommand = vscode.commands.registerCommand('task-journal.toggle_task', () => {
+    const toggleTaskCommand = vscode.commands.registerCommand('task-journal.toggle_task', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             return;
@@ -398,7 +398,7 @@ export function activate(context: vscode.ExtensionContext) {
             newText = `${res.indentation}${res.patternStart}${res.taskStates[0]}${res.patternEnd}${res.taskText}`;
         }
 
-        editor.edit(editBuilder => {
+        await editor.edit(editBuilder => {
             editBuilder.replace(line.range, newText);
         });
     });

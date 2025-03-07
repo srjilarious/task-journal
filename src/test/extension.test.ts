@@ -5,11 +5,72 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 // import * as myExtension from '../../extension';
 
-suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
+suite('Task-journal task Test Suite', () => {
+    vscode.window.showInformationMessage('Start all tests.');
 
-	test('Sample test', () => {
-		assert.strictEqual(-1, [1, 2, 3].indexOf(5));
-		assert.strictEqual(-1, [1, 2, 3].indexOf(0));
-	});
+    test('Test toggle task on line.', async () => {
+        const editor = await vscode.window.showTextDocument(
+            await vscode.workspace.openTextDocument({ content: 'Test line' })
+        );
+
+        {
+            await vscode.commands.executeCommand('task-journal.toggle_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [ ] Test line');
+        }
+
+        // Now untoggle
+        {
+            await vscode.commands.executeCommand('task-journal.toggle_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [ ] Test line');
+        }
+    });
+
+    test('Test increasing task line.', async () => {
+        const editor = await vscode.window.showTextDocument(
+            await vscode.workspace.openTextDocument({ content: 'Test line' })
+        );
+
+        {
+            await vscode.commands.executeCommand('task-journal.toggle_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [ ] Test line');
+        }
+
+        // Increase
+        {
+            await vscode.commands.executeCommand('task-journal.increase_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [◔] Test line');
+        }
+
+        // Increase
+        {
+            await vscode.commands.executeCommand('task-journal.increase_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [◑] Test line');
+        }
+
+        // Increase
+        {
+            await vscode.commands.executeCommand('task-journal.increase_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [◕] Test line');
+        }
+
+        // Increase
+        {
+            await vscode.commands.executeCommand('task-journal.increase_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [✓] Test line');
+        }
+    });
 });
