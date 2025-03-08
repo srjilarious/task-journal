@@ -46,6 +46,16 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.5.0
+
+Added support for tags.  You need to add a set of tags to `task-journal.tags` and then you can toggle one or multiple on a task line.
+
+The tags are by default rendered with `(TAG1,TAG2)`, but you can change the end/start strings and the separator if you want.
+
+### 0.3.0
+
+- Fixed a bug where next/previous navigation didn't work on Windows if the data directory was specified with an upper case drive letter.
+
 ### 0.2.1
 
 - Added icon and CHANGELOG.md contents.

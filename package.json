@@ -49,7 +49,7 @@
         },
         "task-journal.tag_separator": {
           "type": "string",
-          "default": ",",
+          "default": ", ",
           "description": "string that separates tags from one another."
         },
         "task-journal.tags": {

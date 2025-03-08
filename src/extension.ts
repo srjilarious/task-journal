@@ -260,7 +260,7 @@ function toLocalISOString(date: Date): string {
     return `${year}-${month}-${day}`;
 }
 
-function applyTagNum(context: vscode.ExtensionContext, which: number): void {
+async function applyTagNum(context: vscode.ExtensionContext, which: number): void {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
         return;
@@ -282,7 +282,7 @@ function applyTagNum(context: vscode.ExtensionContext, which: number): void {
 
     const newText = applyTag(context, line.text, configuredTags[which]);
     if(newText) {
-        editor.edit(editBuilder => {
+        await editor.edit(editBuilder => {
             editBuilder.replace(line.range, newText);
         });
     }
@@ -416,7 +416,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(nextEntryCommand, previousEntryCommand);
     
     // Tag handling
-    const applyTagCommand = vscode.commands.registerCommand('task-journal.apply_tag', () => {
+    const applyTagCommand = vscode.commands.registerCommand('task-journal.apply_tag', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             return;
@@ -426,30 +426,30 @@ export function activate(context: vscode.ExtensionContext) {
 
         const newText = applyTag(context, line.text, "MGMT");
         if(newText) {
-            editor.edit(editBuilder => {
+            await editor.edit(editBuilder => {
                 editBuilder.replace(line.range, newText);
             });
         }
     });
 
-    const applyTag0Command = vscode.commands.registerCommand('task-journal.apply_tag_0', () => {
-        applyTagNum(context, 0);
+    const applyTag0Command = vscode.commands.registerCommand('task-journal.apply_tag_0', async () => {
+        await applyTagNum(context, 0);
     });
-    const applyTag1Command = vscode.commands.registerCommand('task-journal.apply_tag_1', () => {
-        applyTagNum(context, 1);
+    const applyTag1Command = vscode.commands.registerCommand('task-journal.apply_tag_1', async () => {
+        await applyTagNum(context, 1);
     });
-    const applyTag2Command = vscode.commands.registerCommand('task-journal.apply_tag_2', () => {
-        applyTagNum(context, 2);
+    const applyTag2Command = vscode.commands.registerCommand('task-journal.apply_tag_2', async () => {
+        await applyTagNum(context, 2);
     });
-    const applyTag3Command = vscode.commands.registerCommand('task-journal.apply_tag_3', () => {
-        applyTagNum(context, 3);
+    const applyTag3Command = vscode.commands.registerCommand('task-journal.apply_tag_3', async () => {
+        await applyTagNum(context, 3);
     });
 
-    const previousTagCommand = vscode.commands.registerCommand('task-journal.previous_tag', () => {
+    const previousTagCommand = vscode.commands.registerCommand('task-journal.previous_tag', async () => {
         
     });
     
-    const nextTagCommand = vscode.commands.registerCommand('task-journal.next_tag', () => {
+    const nextTagCommand = vscode.commands.registerCommand('task-journal.next_tag', async () => {
         
     });
 
