@@ -25,11 +25,11 @@ suite('Task-journal task Test Suite', () => {
             await vscode.commands.executeCommand('task-journal.toggle_task');
 
             const modifiedText = editor.document.getText();
-            assert.strictEqual(modifiedText, '- [ ] Test line');
+            assert.strictEqual(modifiedText, '- [✓] Test line');
         }
     });
 
-    test('Test increasing task line.', async () => {
+    test('Test increasing/decreasing task line.', async () => {
         const editor = await vscode.window.showTextDocument(
             await vscode.workspace.openTextDocument({ content: 'Test line' })
         );
@@ -71,6 +71,54 @@ suite('Task-journal task Test Suite', () => {
 
             const modifiedText = editor.document.getText();
             assert.strictEqual(modifiedText, '- [✓] Test line');
+        }
+
+        // Increase
+        {
+            await vscode.commands.executeCommand('task-journal.increase_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [ ] Test line');
+        }
+
+        // Decrease
+        {
+            await vscode.commands.executeCommand('task-journal.decrease_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [✓] Test line');
+        }
+
+        // Decrease
+        {
+            await vscode.commands.executeCommand('task-journal.decrease_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [◕] Test line');
+        }
+
+        // Decrease
+        {
+            await vscode.commands.executeCommand('task-journal.decrease_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [◑] Test line');
+        }
+
+        // Decrease
+        {
+            await vscode.commands.executeCommand('task-journal.decrease_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [◔] Test line');
+        }
+
+        // Decrease
+        {
+            await vscode.commands.executeCommand('task-journal.decrease_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [ ] Test line');
         }
     });
 });
