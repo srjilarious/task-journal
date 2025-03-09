@@ -46,7 +46,7 @@ suite('Task-journal task Test Suite', () => {
                 await vscode.commands.executeCommand('task-journal.apply_tag_0');
     
                 const modifiedText = editor.document.getText();
-                assert.strictEqual(modifiedText, '- [ ] (TEST) Test line');
+                assert.strictEqual(modifiedText, '- [ ] Test line');
             }
         });
 
@@ -63,12 +63,44 @@ suite('Task-journal task Test Suite', () => {
                 assert.strictEqual(modifiedText, '- [ ] (TEST) Test line');
             }
     
-            // Apply again, nothing should change.
+            // Apply the second tag
             {
                 await vscode.commands.executeCommand('task-journal.apply_tag_1');
     
                 const modifiedText = editor.document.getText();
                 assert.strictEqual(modifiedText, '- [ ] (TEST, IMPORTANT) Test line');
+            }
+
+            // Apply the third
+            {
+                await vscode.commands.executeCommand('task-journal.apply_tag_2');
+    
+                const modifiedText = editor.document.getText();
+                assert.strictEqual(modifiedText, '- [ ] (TEST, IMPORTANT, URGENT) Test line');
+            }
+
+            // Toggle the second
+            {
+                await vscode.commands.executeCommand('task-journal.apply_tag_1');
+    
+                const modifiedText = editor.document.getText();
+                assert.strictEqual(modifiedText, '- [ ] (TEST, URGENT) Test line');
+            }
+
+            // Toggle the first
+            {
+                await vscode.commands.executeCommand('task-journal.apply_tag_0');
+    
+                const modifiedText = editor.document.getText();
+                assert.strictEqual(modifiedText, '- [ ] (URGENT) Test line');
+            }
+
+            // Toggle the third
+            {
+                await vscode.commands.executeCommand('task-journal.apply_tag_2');
+    
+                const modifiedText = editor.document.getText();
+                assert.strictEqual(modifiedText, '- [ ] Test line');
             }
         });
 });

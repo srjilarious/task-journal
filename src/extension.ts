@@ -73,10 +73,22 @@ function applyTag(context: vscode.ExtensionContext, line: string, tag: string) {
             const tagText = restText.substring(tagStart.length, actualTaskTextStart);
             const tagList = tagText.split(configuredTagSep).map(tag => tag.trim());;
             if(tagList.includes(tag)) {
-                console.log(`tag list already includes ${tag}`);
+                console.log(`tag list already includes ${tag}, removing.`);
+                const updatedTagList = tagList.filter(t => t !== tag);
+                if(updatedTagList.length > 0) {
+                    // Print the line with just the remaining tags.
+                    const tagListStr = updatedTagList.join(configuredTagSep);
+                    const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${tagStart}${tagListStr}${tagEnd}${actualTaskText}`;
+                    return taggedLine;
+                }
+                else {
+                    // Remove the tag list all together if it was the last tag.
+                    const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${actualTaskText}`;
+                    return taggedLine;
+                }
             }
             else {
-                tagList.push(tag)
+                tagList.push(tag);
                 const tagListStr = tagList.join(configuredTagSep);
                 const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${tagStart}${tagListStr}${tagEnd}${actualTaskText}`;
                 return taggedLine;
@@ -260,7 +272,7 @@ function toLocalISOString(date: Date): string {
     return `${year}-${month}-${day}`;
 }
 
-async function applyTagNum(context: vscode.ExtensionContext, which: number): void {
+async function applyTagNum(context: vscode.ExtensionContext, which: number) {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
         return;
@@ -270,7 +282,7 @@ async function applyTagNum(context: vscode.ExtensionContext, which: number): voi
 
     const config = vscode.workspace.getConfiguration('task-journal');
     const configuredTags = config.get<string>('tags') ?? []; 
-    if(configuredTags.length == 0) {
+    if(configuredTags.length === 0) {
         vscode.window.showErrorMessage('No configured tags in task-journal.tags.');
         return;
     }
