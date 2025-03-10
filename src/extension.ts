@@ -444,36 +444,13 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    const applyTag0Command = vscode.commands.registerCommand('task-journal.apply_tag_0', async () => {
-        await applyTagNum(context, 0);
-    });
-    const applyTag1Command = vscode.commands.registerCommand('task-journal.apply_tag_1', async () => {
-        await applyTagNum(context, 1);
-    });
-    const applyTag2Command = vscode.commands.registerCommand('task-journal.apply_tag_2', async () => {
-        await applyTagNum(context, 2);
-    });
-    const applyTag3Command = vscode.commands.registerCommand('task-journal.apply_tag_3', async () => {
-        await applyTagNum(context, 3);
-    });
+    for(let i = 0; i < 10; i++) {
+        const applyTagCommand = vscode.commands.registerCommand(`task-journal.apply_tag_${i}`, async () => {
+            await applyTagNum(context, i);
+        });
 
-    const previousTagCommand = vscode.commands.registerCommand('task-journal.previous_tag', async () => {
-        
-    });
-    
-    const nextTagCommand = vscode.commands.registerCommand('task-journal.next_tag', async () => {
-        
-    });
-
-    context.subscriptions.push(
-        applyTagCommand,
-        applyTag0Command,
-        applyTag1Command,
-        applyTag2Command,
-        applyTag3Command,
-        nextTagCommand, 
-        previousTagCommand,
-    );
+        context.subscriptions.push(applyTagCommand);
+    }
 }
 
 // This method is called when your extension is deactivated

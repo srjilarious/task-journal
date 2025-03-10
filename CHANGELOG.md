@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.5.0
+
+- Added support for tags.  Specify your tags in the `task-journal.tags` list, and you can use the commands `task-journal.apply_tag_0`-`task-journal.apply_tag_9` to toggle any or them on/off individually.  By default the tag pattern is `($)` where the $ is the comma separated list of tags applied.
+
 ## 0.3.0
 
 - Fixed a bug where next/previous navigation didn't work on Windows if the data directory was specified with an upper case drive letter.

@@ -84,10 +84,6 @@
         "title": "Task Journal: Decrease Task Progress"
       },
       {
-        "command": "task-journal.apply_tag",
-        "title": "Task Journal: Apply a test tag"
-      },
-      {
         "command": "task-journal.apply_tag_0",
         "title": "Task Journal: Apply the first tag from your tags list."
       },
@@ -104,12 +100,28 @@
         "title": "Task Journal: Apply the fourth tag from your tags list."
       },
       {
-        "command": "task-journal.next_tag",
-        "title": "Task Journal: Apply a test tag"
+        "command": "task-journal.apply_tag_4",
+        "title": "Task Journal: Apply the fifth tag from your tags list."
       },
       {
-        "command": "task-journal.previous_tag",
-        "title": "Task Journal: Apply a test tag"
+        "command": "task-journal.apply_tag_5",
+        "title": "Task Journal: Apply the sixth tag from your tags list."
+      },
+      {
+        "command": "task-journal.apply_tag_6",
+        "title": "Task Journal: Apply the seventh tag from your tags list."
+      },
+      {
+        "command": "task-journal.apply_tag_7",
+        "title": "Task Journal: Apply the eighth tag from your tags list."
+      },
+      {
+        "command": "task-journal.apply_tag_8",
+        "title": "Task Journal: Apply the ninth tag from your tags list."
+      },
+      {
+        "command": "task-journal.apply_tag_9",
+        "title": "Task Journal: Apply the tenth tag from your tags list."
       },
       {
         "command": "task-journal.increase_task",
