@@ -84,6 +84,14 @@
         "title": "Task Journal: Decrease Task Progress"
       },
       {
+        "command": "task-journal.increase_task",
+        "title": "Task Journal: Increase Task Progress"
+      },
+      {
+        "command": "task-journal.toggle_task",
+        "title": "Task Journal: Toggle Task"
+      },
+      {
         "command": "task-journal.apply_tag_0",
         "title": "Task Journal: Apply the first tag from your tags list."
       },
@@ -122,14 +130,6 @@
       {
         "command": "task-journal.apply_tag_9",
         "title": "Task Journal: Apply the tenth tag from your tags list."
-      },
-      {
-        "command": "task-journal.increase_task",
-        "title": "Task Journal: Increase Task Progress"
-      },
-      {
-        "command": "task-journal.toggle_task",
-        "title": "Task Journal: Toggle Task"
       }
     ],
     "keybindings": [

@@ -15,14 +15,6 @@ class TaskLineResult {
     indentation: string = "";
 }
 
-class TagResult {
-    taskStateText: string = "";
-    taskText: string = "";
-    tagStart: string = "";
-    tagEnd: string = "";
-    indentation: string = "";
-}
-
 function getIndentation(input: string) {
     const match = input.match(/^\s+/);
     const ws = match ? match[0] : "";
@@ -48,54 +40,53 @@ function applyTag(context: vscode.ExtensionContext, line: string, tag: string) {
     const [ws, rest] = getIndentation(line);
     if (rest.startsWith(patternStart)) {
         
-        const afterStart = rest.substring(patternStart.length);
-        const taskTextStart = afterStart.indexOf(patternEnd);
+        const afterPatternStartIdx = patternStart.length;
+        const patternEndIdx = rest.indexOf(patternEnd, afterPatternStartIdx);
 
         // If we don't see our end pattern, bail.
-        if(taskTextStart < 0) {
+        if(patternEndIdx < 0) {
             return;
         }
 
-        const restText = afterStart.substring(taskTextStart+patternEnd.length);
-        
-        
-        const patternEndIdx = rest.indexOf(patternEnd);
+        const afterPatternIdx = patternEndIdx+patternEnd.length;
+        const taskPortion = rest.substring(0, patternEndIdx+patternEnd.length);
 
-        if(restText.startsWith(tagStart)) {
+        if(rest.startsWith(tagStart, afterPatternIdx)) {
             console.log("Found a tag section:", rest);
-            const actualTaskTextStart = restText.indexOf(tagEnd);
-            if(actualTaskTextStart < 0) {
+            const taskTextEndIdx = rest.indexOf(tagEnd, afterPatternIdx);
+            if(taskTextEndIdx < 0) {
                 console.log("Only found beginning of tag section");
                 return;
             }
 
-            const actualTaskText = restText.substring(actualTaskTextStart+tagEnd.length);
-            const tagText = restText.substring(tagStart.length, actualTaskTextStart);
+            const actualTaskText = rest.substring(taskTextEndIdx+tagEnd.length);
+            const tagText = rest.substring(afterPatternIdx+tagStart.length, taskTextEndIdx);
             const tagList = tagText.split(configuredTagSep).map(tag => tag.trim());;
+
             if(tagList.includes(tag)) {
                 console.log(`tag list already includes ${tag}, removing.`);
                 const updatedTagList = tagList.filter(t => t !== tag);
                 if(updatedTagList.length > 0) {
                     // Print the line with just the remaining tags.
                     const tagListStr = updatedTagList.join(configuredTagSep);
-                    const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${tagStart}${tagListStr}${tagEnd}${actualTaskText}`;
+                    const taggedLine = `${ws}${taskPortion}${tagStart}${tagListStr}${tagEnd}${actualTaskText}`;
                     return taggedLine;
                 }
                 else {
                     // Remove the tag list all together if it was the last tag.
-                    const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${actualTaskText}`;
+                    const taggedLine = `${ws}${taskPortion}${actualTaskText}`;
                     return taggedLine;
                 }
             }
             else {
                 tagList.push(tag);
                 const tagListStr = tagList.join(configuredTagSep);
-                const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${tagStart}${tagListStr}${tagEnd}${actualTaskText}`;
+                const taggedLine = `${ws}${taskPortion}${tagStart}${tagListStr}${tagEnd}${actualTaskText}`;
                 return taggedLine;
             }
         }
         else {
-            const taggedLine = `${ws}${rest.substring(0, patternEndIdx+patternEnd.length)}${tagStart}${tag}${tagEnd}${restText}`;
+            const taggedLine = `${ws}${taskPortion}${tagStart}${tag}${tagEnd}${rest.substring(patternEndIdx+patternEnd.length)}`;
             return taggedLine;
         }
     }

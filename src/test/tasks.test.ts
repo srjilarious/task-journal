@@ -27,6 +27,14 @@ suite('Task-journal task Test Suite', () => {
             const modifiedText = editor.document.getText();
             assert.strictEqual(modifiedText, '- [✓] Test line');
         }
+
+        // Should be able to toggle back off too.
+        {
+            await vscode.commands.executeCommand('task-journal.toggle_task');
+
+            const modifiedText = editor.document.getText();
+            assert.strictEqual(modifiedText, '- [ ] Test line');
+        }
     });
 
     test('Test increasing/decreasing task line.', async () => {
