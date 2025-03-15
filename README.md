@@ -1,29 +1,24 @@
 # Task Journal
 
-This extension is a subset of the functionality of vim-wiki for creating journal entries and handling tasks with multiple levels of in-progress state.  It is intended to be used on markdown files, but can work on any text file.
+![Example Usage of Extension](/assets/extension_usage.gif)
 
-## Features
+This extension is for creating journal entries and handling tasks with multiple levels of in-progress state.  It is intended to be used on markdown files, but can work on any text file.  It was inspired by the fantastic vim-wiki plugin that I used on vim.
 
-- Toggle lines into tasks with `task-journal.toggle_task`, 
-    
-    default binding: `ctrl+meta+\`
+## Tasks
 
-- Decrease/Increase task progress with `task-journal.decrease_task`/`task-journal.increase_task, 
-    
-    default bindings: `ctrl+meta+[`, `ctrl+meta+]`
+Using the `task-journal.toggle_task` command will take the current line and (with the default pattern) prepend a `- [ ]` if one is not found.  If the "task pattern" is found, it will toggle it as completed `- [✓]`.
 
-- Create a journal entry for today with `task-journal.todays_entry`. 
-    
-    default binding: `ctrl+meta+t`
+You can have multiple states of in-progress, such as ◔, ◑, ◕, moving through them with the `task-journal.increase_task` and `task-journal.decrease_task` commands.
 
-- Create a journal entry for tomorrow with `task-journal.tomorrows_entry`. 
-    
-    default binding: `ctrl+meta+m`
+## Diary Entries
 
-- Cycle through journal entryies with `task-journal.previous_entry`/`task-journal.next_entry`, 
-    
-    default bindings: `ctrl+meta+p`, `ctrl+meta+n`
+You can create a new markdown file for each day to keep track of tasks and notes.  Use the `task-journal.todays_entry` to open or create an entry for today, or `task-journal.tomorrows_entry` to create one for tomorrow.  You can cycle through the entries that are created in your `task-journal.data_directory`, with the commands `task-journal.previous_entry` and `task-journal.next_entry`.
 
+## Tags
+
+Task Journal supports having a list of tags that you can apply to a task line.  By default this is rendered as `(TAG1, TAG2)`, but you need to set up the list of tags you want to use in the `task-journal.tags` list first.  Then with the `task-journal.apply_tag_0` through `task-journal.apply_tag_9` commands, you can toggle each tag on the line independently.
+
+This feature is intended to make it easy to search for groups of related tasks using some like ripgrep to quickly search the diary entries you've created.
 
 ## Extension Settings
 
@@ -43,6 +38,9 @@ This extension contributes the following settings:
     `$dd`: The day
     
     The default is `# $date\n`
+* `task-journal.tag_pattern`: Similar to the `task_pattern` setting, it is the template used for tags, where the `$` is replaced with the set of tags for the task line.
+* `task-journal.tag_separator`: By default, tags are separated by a `, `, but you can change this if you'd like.
+* `task-journal.tags`: In order to use the tagging feature, you need to add a set of items to this setting in order to be able to apply them to tasks.  It defaults to an empty list.
 
 ## Release Notes
 

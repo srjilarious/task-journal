@@ -135,35 +135,35 @@
     "keybindings": [
       {
         "command": "task-journal.todays_entry",
-        "key": "ctrl+meta+t"
+        "key": "ctrl+meta+alt+t"
       },
       {
         "command": "task-journal.tomorrows_entry",
-        "key": "ctrl+meta+m"
+        "key": "ctrl+meta+alt+m"
       },
       {
         "command": "task-journal.previous_entry",
-        "key": "ctrl+meta+p",
+        "key": "ctrl+meta+alt+p",
         "when": "editorTextFocus"
       },
       {
         "command": "task-journal.next_entry",
-        "key": "ctrl+meta+n",
+        "key": "ctrl+meta+alt+n",
         "when": "editorTextFocus"
       },
       {
         "command": "task-journal.decrease_task",
-        "key": "ctrl+meta+[",
+        "key": "ctrl+meta+alt+[",
         "when": "editorTextFocus && editorLangId == 'markdown'"
       },
       {
         "command": "task-journal.increase_task",
-        "key": "ctrl+meta+]",
+        "key": "ctrl+meta+alt+]",
         "when": "editorTextFocus && editorLangId == 'markdown'"
       },
       {
         "command": "task-journal.toggle_task",
-        "key": "ctrl+meta+\\",
+        "key": "ctrl+meta+alt+\\",
         "when": "editorTextFocus && editorLangId == 'markdown'"
       }
     ]
